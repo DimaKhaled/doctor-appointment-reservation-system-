@@ -1,0 +1,38 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="row align-items-center g-4">
+    <div class="col-lg-7">
+        <p class="text-uppercase text-primary fw-semibold small mb-2">Doctor Appointment Management System</p>
+        <h1 class="display-5 fw-semibold mb-3">Foundation ready for patient, doctor, and admin modules.</h1>
+        <p class="lead text-muted mb-4">
+            Register as a patient, sign in with a seeded account, or continue to your role dashboard.
+        </p>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-primary" asp-controller="Account" asp-action="Register">Create Patient Account</a>
+            <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login">Login</a>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="dashboard-panel">
+            <h2 class="h5 mb-3">Seeded Accounts</h2>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Patient</td><td>patient@dams.local</td></tr>
+                        <tr><td>Doctor</td><td>doctor@dams.local</td></tr>
+                        <tr><td>Admin</td><td>admin@dams.local</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="small text-muted mb-0 mt-3">All seeded accounts use password <code>Dams@123</code>.</p>
+        </div>
+    </div>
+</div>
