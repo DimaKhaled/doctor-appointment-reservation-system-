@@ -1,0 +1,84 @@
+@model List<Dams.Web.ViewModels.Doctor.AppointmentListItemViewModel>
+
+@{
+    ViewData["Title"] = "Appointments";
+    var tabs = new[] { "All", "Pending", "Confirmed", "Completed", "Rejected", "Cancelled" };
+    var selected = ViewBag.SelectedStatus as string ?? "All";
+}
+
+<div class="page-header">
+    <h1 class="h3 mb-1">Appointments</h1>
+    <p class="text-muted mb-0">Review, accept, reject, or complete your patient appointments.</p>
+</div>
+
+<ul class="nav nav-pills mb-3">
+    @foreach (var tab in tabs)
+    {
+        <li class="nav-item">
+            <a class="nav-link @(tab == selected ? "active" : "")" asp-action="Appointments" asp-route-status="@tab">@tab</a>
+        </li>
+    }
+</ul>
+
+<div class="table-shell">
+    @if (Model.Count == 0)
+    {
+        <partial name="_EmptyState" model="@("No appointments found for this filter.")" />
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var appt in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="PatientProfile" asp-route-id="@appt.PatientId">@appt.PatientName</a>
+                            </td>
+                            <td>@appt.SlotDate.ToString("MMM d, yyyy")</td>
+                            <td>@appt.StartTime.ToString("h:mm tt") - @appt.EndTime.ToString("h:mm tt")</td>
+                            <td><partial name="_StatusBadge" model="@appt.Status" /></td>
+                            <td class="text-end">
+                                @if (appt.Status == "Pending")
+                                {
+                                    <form asp-action="AcceptAppointment" asp-route-id="@appt.AppointmentId" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-success">Accept</button>
+                                    </form>
+                                    <form asp-action="RejectAppointment" asp-route-id="@appt.AppointmentId" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger js-confirm-submit"
+                                                data-confirm-message="Reject this appointment request?">
+                                            Reject
+                                        </button>
+                                    </form>
+                                }
+                                else if (appt.Status == "Confirmed")
+                                {
+                                    <form asp-action="CompleteAppointment" asp-route-id="@appt.AppointmentId" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-primary js-confirm-submit"
+                                                data-confirm-message="Mark this appointment as completed?">
+                                            Mark Completed
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">No actions available</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

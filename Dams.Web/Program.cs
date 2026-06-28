@@ -5,9 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 // Add services to the container.
 builder.Services.AddDbContext<DamsDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -38,6 +40,9 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// MapStaticAssets below only serves files known at build time (fingerprinted manifest).
+// UseStaticFiles is also required so runtime-uploaded files (e.g. profile pictures) are served.
+app.UseStaticFiles();
 app.MapStaticAssets();
 
 app.MapControllerRoute(

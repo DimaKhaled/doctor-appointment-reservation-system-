@@ -1,0 +1,74 @@
+@model Dams.Web.ViewModels.Doctor.DoctorProfileViewModel
+
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="page-header">
+    <h1 class="h3 mb-1">My Profile</h1>
+    <p class="text-muted mb-0">Update your professional details and profile picture.</p>
+</div>
+
+<div class="form-shell">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        @if (!string.IsNullOrWhiteSpace(Model.ProfilePicturePath))
+        {
+            <img src="@Model.ProfilePicturePath" alt="Profile picture" class="profile-picture" />
+        }
+        else
+        {
+            <div class="profile-picture-placeholder">@Model.FullName.Substring(0, 1)</div>
+        }
+        <div>
+            <div class="fw-semibold">Dr. @Model.FullName</div>
+            <div class="text-muted small">@Model.SpecializationName &middot; @Model.ClinicName</div>
+            <div class="mt-1"><partial name="_StatusBadge" model="@Model.Status" /></div>
+        </div>
+    </div>
+
+    <form asp-action="Profile" method="post" enctype="multipart/form-data" novalidate>
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Email</label>
+                <input type="text" class="form-control" value="@Model.Email" disabled readonly />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Phone Number</label>
+                <input type="text" class="form-control" value="@Model.PhoneNumber" disabled readonly />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Qualifications" class="form-label"></label>
+            <textarea asp-for="Qualifications" class="form-control" rows="2"></textarea>
+            <span asp-validation-for="Qualifications" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ExperienceYears" class="form-label"></label>
+            <input asp-for="ExperienceYears" type="number" min="0" max="80" class="form-control" style="max-width: 160px;" />
+            <span asp-validation-for="ExperienceYears" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Biography" class="form-label"></label>
+            <textarea asp-for="Biography" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="Biography" class="text-danger"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="ProfilePicture" class="form-label"></label>
+            <input asp-for="ProfilePicture" type="file" accept=".jpg,.jpeg,.png,.webp" class="form-control" />
+            <span asp-validation-for="ProfilePicture" class="text-danger"></span>
+            <div class="form-text">JPG, PNG, or WEBP. Max 2 MB.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

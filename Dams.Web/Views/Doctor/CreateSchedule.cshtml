@@ -1,0 +1,59 @@
+@model Dams.Web.ViewModels.Doctor.ScheduleFormViewModel
+
+@{
+    ViewData["Title"] = "Add Schedule";
+}
+
+<div class="page-header">
+    <h1 class="h3 mb-1">Add Schedule</h1>
+    <p class="text-muted mb-0">Define a recurring weekly availability window. Slots will be generated for the next 4 weeks.</p>
+</div>
+
+<div class="form-shell" style="max-width: 560px;">
+    <form asp-action="CreateSchedule" method="post" novalidate>
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="DayOfWeek" class="form-label"></label>
+            <select asp-for="DayOfWeek" class="form-select">
+                <option value="">Select day</option>
+                @foreach (var day in Dams.Web.ViewModels.Doctor.ScheduleFormViewModel.DaysOfWeek)
+                {
+                    <option value="@day">@day</option>
+                }
+            </select>
+            <span asp-validation-for="DayOfWeek" class="text-danger"></span>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-6">
+                <label asp-for="StartTime" class="form-label"></label>
+                <input asp-for="StartTime" type="time" class="form-control" />
+                <span asp-validation-for="StartTime" class="text-danger"></span>
+            </div>
+            <div class="col-6">
+                <label asp-for="EndTime" class="form-label"></label>
+                <input asp-for="EndTime" type="time" class="form-control" />
+                <span asp-validation-for="EndTime" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="SlotDurationMinutes" class="form-label"></label>
+            <select asp-for="SlotDurationMinutes" class="form-select">
+                @foreach (var duration in Dams.Web.ViewModels.Doctor.ScheduleFormViewModel.AllowedDurations)
+                {
+                    <option value="@duration">@duration minutes</option>
+                }
+            </select>
+            <span asp-validation-for="SlotDurationMinutes" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create Schedule</button>
+        <a asp-action="Schedules" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

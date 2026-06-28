@@ -1,0 +1,78 @@
+@model Dams.Web.ViewModels.Doctor.PatientDetailsViewModel
+
+@{
+    ViewData["Title"] = "Patient Profile";
+}
+
+<div class="page-header">
+    <a asp-action="Appointments" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Appointments</a>
+    <h1 class="h3 mb-1">Patient Profile</h1>
+    <p class="text-muted mb-0">Read-only view, limited to patients who have appointments with you.</p>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="dashboard-panel text-center">
+            @if (!string.IsNullOrWhiteSpace(Model.ProfilePicturePath))
+            {
+                <img src="@Model.ProfilePicturePath" alt="Patient picture" class="profile-picture mb-3" />
+            }
+            else
+            {
+                <div class="profile-picture-placeholder mx-auto mb-3">@Model.FullName.Substring(0, 1)</div>
+            }
+            <h2 class="h5 mb-1">@Model.FullName</h2>
+            <p class="text-muted small mb-0">@Model.Email</p>
+            <p class="text-muted small">@Model.PhoneNumber</p>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="dashboard-panel h-100">
+            <h2 class="h5 mb-3">Medical Information</h2>
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Gender</dt>
+                <dd class="col-sm-8">@Model.Gender</dd>
+                <dt class="col-sm-4">Date of Birth</dt>
+                <dd class="col-sm-8">@Model.DateOfBirth.ToString("MMM d, yyyy")</dd>
+                <dt class="col-sm-4">Blood Type</dt>
+                <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.BloodType) ? "—" : Model.BloodType)</dd>
+                <dt class="col-sm-4">Allergies</dt>
+                <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Allergies) ? "—" : Model.Allergies)</dd>
+                <dt class="col-sm-4">Chronic Diseases</dt>
+                <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.ChronicDiseases) ? "—" : Model.ChronicDiseases)</dd>
+            </dl>
+        </div>
+    </div>
+</div>
+
+<div class="table-shell mt-3">
+    <h2 class="h5 mb-3">Appointment History With You</h2>
+    @if (Model.AppointmentsWithThisDoctor.Count == 0)
+    {
+        <partial name="_EmptyState" model="@("No appointment history found.")" />
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var appt in Model.AppointmentsWithThisDoctor)
+                    {
+                        <tr>
+                            <td>@appt.SlotDate.ToString("MMM d, yyyy")</td>
+                            <td>@appt.StartTime.ToString("h:mm tt") - @appt.EndTime.ToString("h:mm tt")</td>
+                            <td><partial name="_StatusBadge" model="@appt.Status" /></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

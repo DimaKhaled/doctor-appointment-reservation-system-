@@ -1,13 +1,129 @@
+@model Dams.Web.ViewModels.Doctor.DoctorDashboardViewModel
+
 @{
     ViewData["Title"] = "Doctor Dashboard";
 }
 
-<div class="page-header">
-    <h1 class="h3 mb-1">Doctor Dashboard</h1>
-    <p class="text-muted mb-0">Phase 0 role authorization is active for Doctor users.</p>
+<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+    <div>
+        <h1 class="h3 mb-1">Welcome, Dr. @Model.DoctorName</h1>
+        <p class="text-muted mb-0">Here is an overview of your appointments and performance.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Schedules" class="btn btn-outline-primary">Manage Schedules</a>
+        <a asp-action="Appointments" class="btn btn-primary">View Appointments</a>
+    </div>
 </div>
 
-<div class="dashboard-panel">
-    <h2 class="h5">Next Phase Modules</h2>
-    <p class="mb-0 text-muted">Doctor profile, schedules, appointments, and statistics will build on this foundation.</p>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-2">
+        <div class="stat-card">
+            <div class="stat-value text-warning">@Model.PendingCount</div>
+            <div class="stat-label">Pending</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="stat-card">
+            <div class="stat-value text-primary">@Model.ConfirmedUpcomingCount</div>
+            <div class="stat-label">Upcoming Confirmed</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="stat-card">
+            <div class="stat-value text-success">@Model.CompletedCount</div>
+            <div class="stat-label">Completed</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="stat-card">
+            <div class="stat-value text-danger">@Model.RejectedCount</div>
+            <div class="stat-label">Rejected</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="stat-card">
+            <div class="stat-value">@Model.TotalAppointments</div>
+            <div class="stat-label">Total Appointments</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="stat-card">
+            <div class="stat-value">@(Model.ReviewCount > 0 ? Model.AverageRating.ToString("0.0") : "—")</div>
+            <div class="stat-label">Avg. Rating (@Model.ReviewCount reviews)</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="dashboard-panel h-100">
+            <h2 class="h5 mb-3">Today's Appointments</h2>
+            @if (Model.TodayAppointments.Count == 0)
+            {
+                <partial name="_EmptyState" model="@("No appointments scheduled for today.")" />
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var appt in Model.TodayAppointments)
+                            {
+                                <tr>
+                                    <td>
+                                        <a asp-action="PatientProfile" asp-route-id="@appt.PatientId">@appt.PatientName</a>
+                                    </td>
+                                    <td>@appt.StartTime.ToString("h:mm tt") - @appt.EndTime.ToString("h:mm tt")</td>
+                                    <td><partial name="_StatusBadge" model="@appt.Status" /></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="dashboard-panel h-100">
+            <h2 class="h5 mb-3">Awaiting Your Response</h2>
+            @if (Model.PendingAppointments.Count == 0)
+            {
+                <partial name="_EmptyState" model="@("No pending appointment requests.")" />
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var appt in Model.PendingAppointments)
+                            {
+                                <tr>
+                                    <td>
+                                        <a asp-action="PatientProfile" asp-route-id="@appt.PatientId">@appt.PatientName</a>
+                                    </td>
+                                    <td>@appt.SlotDate.ToString("MMM d, yyyy")</td>
+                                    <td>@appt.StartTime.ToString("h:mm tt")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <a asp-action="Appointments" asp-route-status="Pending" class="btn btn-sm btn-outline-primary">Respond to requests</a>
+            }
+        </div>
+    </div>
 </div>

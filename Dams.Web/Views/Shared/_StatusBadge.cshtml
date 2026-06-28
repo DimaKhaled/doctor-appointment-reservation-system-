@@ -1,0 +1,18 @@
+@model string
+
+@{
+    var status = Model ?? string.Empty;
+    var cssClass = status switch
+    {
+        "Pending" => "status-badge status-pending",
+        "Confirmed" => "status-badge status-confirmed",
+        "Rejected" => "status-badge status-rejected",
+        "Cancelled" => "status-badge status-cancelled",
+        "Completed" => "status-badge status-completed",
+        "Active" => "status-badge status-active",
+        "Inactive" => "status-badge status-inactive",
+        _ => "status-badge status-default"
+    };
+}
+
+<span class="@cssClass">@status</span>

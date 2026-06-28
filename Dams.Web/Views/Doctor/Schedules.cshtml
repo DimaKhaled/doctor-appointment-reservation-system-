@@ -1,0 +1,58 @@
+@model List<Dams.Web.ViewModels.Doctor.ScheduleListItemViewModel>
+
+@{
+    ViewData["Title"] = "My Schedules";
+}
+
+<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+    <div>
+        <h1 class="h3 mb-1">My Schedules</h1>
+        <p class="text-muted mb-0">Create weekly availability windows. Appointment slots are generated automatically for the next 4 weeks.</p>
+    </div>
+    <a asp-action="CreateSchedule" class="btn btn-primary">+ Add Schedule</a>
+</div>
+
+<div class="table-shell">
+    @if (Model.Count == 0)
+    {
+        <partial name="_EmptyState" model="@("You haven't created any schedules yet. Add one to start generating appointment slots.")" />
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Day</th>
+                        <th>Time Range</th>
+                        <th>Slot Duration</th>
+                        <th>Upcoming Slots</th>
+                        <th>Booked</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var schedule in Model)
+                    {
+                        <tr>
+                            <td>@schedule.DayOfWeek</td>
+                            <td>@schedule.StartTime.ToString("h:mm tt") - @schedule.EndTime.ToString("h:mm tt")</td>
+                            <td>@schedule.SlotDurationMinutes min</td>
+                            <td>@schedule.UpcomingSlotCount</td>
+                            <td>@schedule.BookedUpcomingSlotCount</td>
+                            <td class="text-end">
+                                <a asp-action="EditSchedule" asp-route-id="@schedule.ScheduleId" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <form asp-action="DeleteSchedule" asp-route-id="@schedule.ScheduleId" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger js-confirm-submit"
+                                            data-confirm-message="Delete this schedule? This cannot be undone.">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
