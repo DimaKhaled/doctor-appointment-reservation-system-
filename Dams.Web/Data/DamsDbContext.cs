@@ -30,7 +30,6 @@ public class DamsDbContext(DbContextOptions<DamsDbContext> options) : DbContext(
         ConfigureAppointmentSlots(modelBuilder);
         ConfigureAppointments(modelBuilder);
         ConfigureReviews(modelBuilder);
-        SeedPhaseZeroData(modelBuilder);
     }
 
     private static void ConfigureUsers(ModelBuilder modelBuilder)
@@ -255,95 +254,4 @@ public class DamsDbContext(DbContextOptions<DamsDbContext> options) : DbContext(
         });
     }
 
-    private static void SeedPhaseZeroData(ModelBuilder modelBuilder)
-    {
-        var seedCreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, DateTimeKind.Utc);
-        const string seededPasswordHash = "AQAAAAIAAYagAAAAEE6ZSRSJhu5czumHnpiAh8kPdAXAX+E0Z3A+C+ErGmKZyrQecasvTvBNbWG32GUyzA==";
-
-        modelBuilder.Entity<Specialization>().HasData(
-            new Specialization { SpecializationId = 1, Name = "Cardiology" },
-            new Specialization { SpecializationId = 2, Name = "Neurology" },
-            new Specialization { SpecializationId = 3, Name = "Pediatrics" },
-            new Specialization { SpecializationId = 4, Name = "Dermatology" },
-            new Specialization { SpecializationId = 5, Name = "Orthopedics" }
-        );
-
-        modelBuilder.Entity<Clinic>().HasData(
-            new Clinic
-            {
-                ClinicId = 1,
-                ClinicName = "DAMS Main Clinic",
-                Address = "10 Health Street",
-                City = "Cairo",
-                PhoneNumber = "01000000000"
-            }
-        );
-
-        modelBuilder.Entity<User>().HasData(
-            new User
-            {
-                UserId = 1,
-                FullName = "Seed Patient",
-                Email = "patient@dams.local",
-                PasswordHash = seededPasswordHash,
-                PhoneNumber = "01000000001",
-                Gender = "Female",
-                Role = AppRoles.Patient,
-                IsActive = true,
-                CreatedAt = seedCreatedAt
-            },
-            new User
-            {
-                UserId = 2,
-                FullName = "Seed Doctor",
-                Email = "doctor@dams.local",
-                PasswordHash = seededPasswordHash,
-                PhoneNumber = "01000000002",
-                Gender = "Male",
-                Role = AppRoles.Doctor,
-                IsActive = true,
-                CreatedAt = seedCreatedAt
-            },
-            new User
-            {
-                UserId = 3,
-                FullName = "Seed Admin",
-                Email = "admin@dams.local",
-                PasswordHash = seededPasswordHash,
-                PhoneNumber = "01000000003",
-                Gender = "Male",
-                Role = AppRoles.Admin,
-                IsActive = true,
-                CreatedAt = seedCreatedAt
-            }
-        );
-
-        modelBuilder.Entity<Patient>().HasData(new Patient
-        {
-            PatientId = 1,
-            UserId = 1,
-            DateOfBirth = new DateTime(1995, 1, 15),
-            BloodType = "O+",
-            Allergies = "None",
-            ChronicDiseases = "None"
-        });
-
-        modelBuilder.Entity<Doctor>().HasData(new Doctor
-        {
-            DoctorId = 1,
-            UserId = 2,
-            SpecializationId = 1,
-            ClinicId = 1,
-            Qualifications = "MBBCh, Cardiology specialist",
-            ExperienceYears = 8,
-            Biography = "Seed doctor account for phase 0 testing.",
-            Status = AppStatuses.Active
-        });
-
-        modelBuilder.Entity<Admin>().HasData(new Admin
-        {
-            AdminId = 1,
-            UserId = 3
-        });
-    }
 }
