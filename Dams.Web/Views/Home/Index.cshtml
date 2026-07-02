@@ -1,38 +1,134 @@
-﻿@{
+﻿@using Dams.Web.Models
+@using Dams.Web.ViewModels.Patient
+
+@{
     ViewData["Title"] = "Home";
+    var specializations = ViewBag.Specializations as List<Specialization> ?? new();
+    var featuredDoctors = ViewBag.FeaturedDoctors as List<DoctorListItemViewModel> ?? new();
 }
 
-<div class="row align-items-center g-4">
+@* Hero Section *@
+<div class="row align-items-center g-4 py-4 mb-4">
     <div class="col-lg-7">
         <p class="text-uppercase text-primary fw-semibold small mb-2">Doctor Appointment Management System</p>
-        <h1 class="display-5 fw-semibold mb-3">Foundation ready for patient, doctor, and admin modules.</h1>
+        <h1 class="display-5 fw-semibold mb-3">Book Your Doctor Appointment in Minutes</h1>
         <p class="lead text-muted mb-4">
-            Register as a patient, sign in with a seeded account, or continue to your role dashboard.
+            Find the right specialist, check availability, and book your appointment — all in one place.
         </p>
         <div class="d-flex flex-wrap gap-2">
-            <a class="btn btn-primary" asp-controller="Account" asp-action="Register">Create Patient Account</a>
-            <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login">Login</a>
+            <a class="btn btn-primary btn-lg" asp-controller="Account" asp-action="Register">Create Account</a>
+            <a class="btn btn-outline-primary btn-lg" asp-controller="Account" asp-action="Login">Sign In</a>
         </div>
     </div>
     <div class="col-lg-5">
         <div class="dashboard-panel">
-            <h2 class="h5 mb-3">Seeded Accounts</h2>
-            <div class="table-responsive">
-                <table class="table align-middle mb-0">
-                    <thead>
-                        <tr>
-                            <th>Role</th>
-                            <th>Email</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>Patient</td><td>patient@dams.local</td></tr>
-                        <tr><td>Doctor</td><td>doctor@dams.local</td></tr>
-                        <tr><td>Admin</td><td>admin@dams.local</td></tr>
-                    </tbody>
-                </table>
+            <h2 class="h5 mb-3">How It Works</h2>
+            <div class="d-flex flex-column gap-3">
+                <div class="d-flex gap-3 align-items-start">
+                    <div class="fw-bold text-primary fs-4">1</div>
+                    <div>
+                        <div class="fw-semibold">Create an Account</div>
+                        <div class="text-muted small">Register as a patient in seconds.</div>
+                    </div>
+                </div>
+                <div class="d-flex gap-3 align-items-start">
+                    <div class="fw-bold text-primary fs-4">2</div>
+                    <div>
+                        <div class="fw-semibold">Find a Doctor</div>
+                        <div class="text-muted small">Browse by specialization, location, or name.</div>
+                    </div>
+                </div>
+                <div class="d-flex gap-3 align-items-start">
+                    <div class="fw-bold text-primary fs-4">3</div>
+                    <div>
+                        <div class="fw-semibold">Book & Get Confirmed</div>
+                        <div class="text-muted small">Pick a time slot and wait for confirmation.</div>
+                    </div>
+                </div>
             </div>
-            <p class="small text-muted mb-0 mt-3">All seeded accounts use password <code>Dams@123</code>.</p>
         </div>
     </div>
+</div>
+
+@* Specializations Section *@
+@if (specializations.Count > 0)
+{
+    <div class="mb-5">
+        <h2 class="h4 fw-semibold mb-1">Browse by Specialization</h2>
+        <p class="text-muted mb-3">Find the right doctor for your needs.</p>
+        <div class="row g-2">
+            @foreach (var spec in specializations)
+            {
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a asp-controller="Account" asp-action="Login"
+                           class="card text-center text-decoration-none h-100 p-3">
+                        <div class="fw-semibold small">@spec.Name</div>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@* Featured Doctors Section *@
+@if (featuredDoctors.Count > 0)
+{
+    <div class="mb-5">
+        <h2 class="h4 fw-semibold mb-1">Meet Our Doctors</h2>
+        <p class="text-muted mb-3">Experienced specialists ready to help.</p>
+        <div class="row g-3">
+            @foreach (var doctor in featuredDoctors)
+            {
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                @if (!string.IsNullOrWhiteSpace(doctor.ProfilePicturePath))
+                                {
+                                    <img src="@doctor.ProfilePicturePath" alt="Dr. @doctor.FullName"
+                                         class="profile-picture" style="width:48px;height:48px;" />
+                                }
+                                else
+                                {
+                                    <div class="profile-picture-placeholder"
+                                         style="width:48px;height:48px;font-size:1rem;">
+                                        @doctor.FullName.Substring(0, 1)
+                                    </div>
+                                }
+                                <div>
+                                    <div class="fw-semibold">Dr. @doctor.FullName</div>
+                                    <div class="text-muted small">@doctor.SpecializationName</div>
+                                </div>
+                            </div>
+                            <div class="text-muted small mb-3">
+                                @doctor.ClinicName, @doctor.City &middot; @doctor.ExperienceYears yrs experience
+                            </div>
+                            @if (doctor.ReviewCount > 0)
+                            {
+                                var reviewLabel = doctor.ReviewCount == 1 ? "review" : "reviews";
+                                <div class="text-muted small mb-3">
+                                    @doctor.AverageRating.ToString("0.0") ★ (@doctor.ReviewCount @reviewLabel)
+                                </div>
+                            }
+                            <a asp-controller="Account" asp-action="Login"
+                               class="btn btn-outline-primary btn-sm">Book Appointment</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@* CTA Section *@
+<div class="dashboard-panel text-center py-4 mb-4">
+    <h2 class="h4 fw-semibold mb-2">Ready to get started?</h2>
+    <p class="text-muted mb-3">Join now and book your first appointment today.</p>
+    <a class="btn btn-primary btn-lg" asp-controller="Account" asp-action="Register">Create a Free Account</a>
+</div>
+
+@* Testing Note *@
+<div class="text-center small text-muted mb-4">
+    <strong>Testing accounts:</strong>
+    patient@dams.local / doctor@dams.local / admin@dams.local &nbsp;|&nbsp; Password: <code>Dams@123</code>
 </div>

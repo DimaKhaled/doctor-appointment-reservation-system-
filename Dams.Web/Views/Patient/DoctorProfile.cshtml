@@ -1,0 +1,96 @@
+@model Dams.Web.ViewModels.Patient.DoctorDetailsViewModel
+
+@{
+    ViewData["Title"] = $"Dr. {Model.FullName}";
+}
+
+<div class="page-header">
+    <a asp-action="Doctors" class="text-decoration-none small">&larr; Back to Find a Doctor</a>
+</div>
+
+<div class="form-shell mb-4">
+    <div class="d-flex align-items-start gap-4 flex-wrap">
+        @if (!string.IsNullOrWhiteSpace(Model.ProfilePicturePath))
+        {
+            <img src="@Model.ProfilePicturePath" alt="Dr. @Model.FullName" class="profile-picture" style="width: 96px; height: 96px;" />
+        }
+        else
+        {
+            <div class="profile-picture-placeholder" style="width: 96px; height: 96px; font-size: 2rem;">@Model.FullName.Substring(0, 1)</div>
+        }
+        <div class="flex-grow-1">
+            <h1 class="h4 mb-1">Dr. @Model.FullName</h1>
+            <div class="text-muted mb-1">@Model.SpecializationName &middot; @Model.Gender &middot; @Model.ExperienceYears yrs experience</div>
+            <div class="text-muted mb-2">@Model.ClinicName, @Model.ClinicAddress, @Model.ClinicCity</div>
+            @if (Model.ReviewCount > 0)
+            {
+                var reviewLabel = Model.ReviewCount == 1 ? "review" : "reviews";
+                <div>@Model.AverageRating.ToString("0.0") ★ (@Model.ReviewCount @reviewLabel)</div>
+            }
+            else
+            {
+                <div class="text-muted">No reviews yet</div>
+            }
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Qualifications))
+    {
+        <hr />
+        <h2 class="h6">Qualifications</h2>
+        <p class="mb-0">@Model.Qualifications</p>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.Biography))
+    {
+        <hr />
+        <h2 class="h6">Biography</h2>
+        <p class="mb-0">@Model.Biography</p>
+    }
+</div>
+
+<div class="form-shell mb-4">
+    <h2 class="h5 mb-3">Available Time Slots</h2>
+    @if (Model.AvailableSlots.Count == 0)
+    {
+        <partial name="_EmptyState" model="@("No available time slots right now. Please check back later.")" />
+    }
+    else
+    {
+        <div class="row g-2">
+            @foreach (var dateGroup in Model.AvailableSlots.GroupBy(s => s.SlotDate))
+            {
+                <div class="col-12">
+                    <div class="fw-semibold small mb-1">@dateGroup.Key.ToString("dddd, MMM d")</div>
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                        @foreach (var slot in dateGroup)
+                        {
+                            <span class="badge text-bg-light border">@slot.StartTime.ToString("h:mm tt")</span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<div class="form-shell">
+    <h2 class="h5 mb-3">Reviews</h2>
+    @if (Model.Reviews.Count == 0)
+    {
+        <partial name="_EmptyState" model="@("No reviews yet for this doctor.")" />
+    }
+    else
+    {
+        @foreach (var review in Model.Reviews)
+        {
+            <div class="mb-3 pb-3 border-bottom">
+                <div class="d-flex justify-content-between">
+                    <span class="fw-semibold">@review.ReviewerName</span>
+                    <span>@review.Rating ★</span>
+                </div>
+                <p class="mb-0 text-muted small">@review.ReviewText</p>
+            </div>
+        }
+    }
+</div>

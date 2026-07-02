@@ -1,13 +1,97 @@
+@using Dams.Web.ViewModels.Patient
+@model PatientDashboardViewModel
+
 @{
     ViewData["Title"] = "Patient Dashboard";
 }
 
-<div class="page-header">
-    <h1 class="h3 mb-1">Patient Dashboard</h1>
-    <p class="text-muted mb-0">Phase 0 role authorization is active for Patient users.</p>
+<div class="page-header d-flex align-items-center gap-3">
+    @if (!string.IsNullOrWhiteSpace(Model.ProfilePicturePath))
+    {
+        <img src="@Model.ProfilePicturePath" alt="@Model.PatientName" class="profile-picture" style="width:56px;height:56px;" />
+    }
+    else
+    {
+        <div class="profile-picture-placeholder" style="width:56px;height:56px;font-size:1.25rem;">@Model.PatientName.Substring(0, 1)</div>
+    }
+    <div>
+        <h1 class="h3 mb-0">Welcome, @Model.PatientName</h1>
+        <p class="text-muted mb-0 small">Here's an overview of your account.</p>
+    </div>
 </div>
 
+@* Stats Row *@
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-value text-primary">@Model.TotalActiveDoctors</div>
+            <div class="stat-label">Doctors Available</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-value text-warning">@Model.UpcomingAppointments</div>
+            <div class="stat-label">Upcoming Appointments</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-value text-success">@Model.CompletedAppointments</div>
+            <div class="stat-label">Completed Appointments</div>
+        </div>
+    </div>
+</div>
+
+@* Quick Actions *@
+<div class="dashboard-panel mb-4">
+    <h2 class="h5 mb-3">Quick Actions</h2>
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-action="Doctors" class="btn btn-primary">Find a Doctor</a>
+        <a asp-action="Profile" class="btn btn-outline-secondary">My Profile</a>
+        <a class="btn btn-outline-secondary disabled">My Appointments</a>
+    </div>
+</div>
+
+@* Featured Doctors *@
 <div class="dashboard-panel">
-    <h2 class="h5">Next Phase Modules</h2>
-    <p class="mb-0 text-muted">Patient profile, doctor discovery, booking, and reviews will build on this foundation.</p>
+    <h2 class="h5 mb-3">Available Doctors</h2>
+    @if (Model.FeaturedDoctors.Count == 0)
+    {
+        <partial name="_EmptyState" model="@("No doctors available yet.")" />
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var doctor in Model.FeaturedDoctors)
+            {
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                @if (!string.IsNullOrWhiteSpace(doctor.ProfilePicturePath))
+                                {
+                                    <img src="@doctor.ProfilePicturePath" alt="Dr. @doctor.FullName" class="profile-picture" style="width:48px;height:48px;" />
+                                }
+                                else
+                                {
+                                    <div class="profile-picture-placeholder" style="width:48px;height:48px;font-size:1rem;">@doctor.FullName.Substring(0, 1)</div>
+                                }
+                                <div>
+                                    <div class="fw-semibold">Dr. @doctor.FullName</div>
+                                    <div class="text-muted small">@doctor.SpecializationName</div>
+                                </div>
+                            </div>
+                            <div class="text-muted small mb-3">
+                                @doctor.ClinicName, @doctor.City &middot; @doctor.ExperienceYears yrs experience
+                            </div>
+                            <a asp-action="DoctorProfile" asp-route-id="@doctor.DoctorId" class="btn btn-outline-primary btn-sm">View Profile</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="mt-3">
+            <a asp-action="Doctors" class="btn btn-link p-0 small">View all doctors &rarr;</a>
+        </div>
+    }
 </div>
