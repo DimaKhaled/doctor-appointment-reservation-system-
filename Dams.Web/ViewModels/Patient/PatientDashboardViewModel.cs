@@ -8,7 +8,6 @@ public class PatientDashboardViewModel
 
     public int TotalActiveDoctors { get; set; }
 
-    // Placeholders — will be wired up when Person 2 finishes the Appointments feature
     public int UpcomingAppointments { get; set; }
 
     public int CompletedAppointments { get; set; }

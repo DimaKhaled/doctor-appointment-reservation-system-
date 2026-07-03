@@ -33,6 +33,9 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Patient" asp-action="Doctors">Find a Doctor</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Patient" asp-action="UpcomingAppointments">My Appointments</a>
+                            </li>
                         }
                         @if (User.IsInRole("Doctor"))
                         {
