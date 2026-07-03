@@ -299,55 +299,81 @@ public class PatientController(DamsDbContext context, IWebHostEnvironment enviro
             return RedirectToAction("AccessDenied", "Account");
         }
 
-        await using var transaction = await context.Database.BeginTransactionAsync();
+        var strategy = context.Database.CreateExecutionStrategy();
+        var bookingOutcome = await strategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await context.Database.BeginTransactionAsync();
 
-        var slot = await context.AppointmentSlots
-            .Include(s => s.Doctor)
-            .FirstOrDefaultAsync(s => s.SlotId == slotId && s.DoctorId == doctorId);
+            var slot = await context.AppointmentSlots
+                .Include(s => s.Doctor)
+                .FirstOrDefaultAsync(s => s.SlotId == slotId && s.DoctorId == doctorId);
 
-        if (slot is null)
+            if (slot is null)
+            {
+                return "missing";
+            }
+
+            var today = DateOnly.FromDateTime(DateTime.Today).ToDateTime(TimeOnly.MinValue);
+            if (slot.SlotDate < today)
+            {
+                return "past";
+            }
+
+            if (slot.Doctor.Status != AppStatuses.Active)
+            {
+                return "inactive-doctor";
+            }
+
+            var slotAlreadyReserved = slot.IsBooked || await context.Appointments.AnyAsync(a =>
+                a.SlotId == slot.SlotId &&
+                (a.Status == AppStatuses.Pending || a.Status == AppStatuses.Confirmed));
+            if (slotAlreadyReserved)
+            {
+                return "booked";
+            }
+
+            slot.IsBooked = true;
+            context.Appointments.Add(new Appointment
+            {
+                PatientId = patient.PatientId,
+                DoctorId = doctorId,
+                SlotId = slotId,
+                Status = AppStatuses.Pending
+            });
+
+            try
+            {
+                await context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return "success";
+            }
+            catch (DbUpdateException)
+            {
+                await transaction.RollbackAsync();
+                return "booked";
+            }
+        });
+
+        if (bookingOutcome == "missing")
         {
             TempData["ErrorMessage"] = "The selected appointment slot could not be found.";
             return RedirectToAction(nameof(DoctorProfile), new { id = doctorId });
         }
 
-        var today = DateOnly.FromDateTime(DateTime.Today).ToDateTime(TimeOnly.MinValue);
-        if (slot.SlotDate < today)
+        if (bookingOutcome == "past")
         {
             TempData["ErrorMessage"] = "You can only book upcoming appointment slots.";
             return RedirectToAction(nameof(DoctorProfile), new { id = doctorId });
         }
 
-        if (slot.Doctor.Status != AppStatuses.Active)
+        if (bookingOutcome == "inactive-doctor")
         {
             TempData["ErrorMessage"] = "This doctor is not available for booking right now.";
             return RedirectToAction(nameof(DoctorProfile), new { id = doctorId });
         }
 
-        var slotAlreadyReserved = slot.IsBooked || await context.Appointments.AnyAsync(a => a.SlotId == slot.SlotId);
-        if (slotAlreadyReserved)
+        if (bookingOutcome == "booked")
         {
-            TempData["ErrorMessage"] = "This slot was just booked by another patient. Please choose a different time.";
-            return RedirectToAction(nameof(DoctorProfile), new { id = doctorId });
-        }
-
-        slot.IsBooked = true;
-        context.Appointments.Add(new Appointment
-        {
-            PatientId = patient.PatientId,
-            DoctorId = doctorId,
-            SlotId = slotId,
-            Status = AppStatuses.Pending
-        });
-
-        try
-        {
-            await context.SaveChangesAsync();
-            await transaction.CommitAsync();
-        }
-        catch (DbUpdateException)
-        {
-            await transaction.RollbackAsync();
             TempData["ErrorMessage"] = "This slot is no longer available. Please try another appointment time.";
             return RedirectToAction(nameof(DoctorProfile), new { id = doctorId });
         }
@@ -418,7 +444,9 @@ public class PatientController(DamsDbContext context, IWebHostEnvironment enviro
             .Select(r => r.DoctorId)
             .ToListAsync();
 
-        var appointments = await context.Appointments
+        var reviewedDoctorIdSet = reviewedDoctorIds.ToHashSet();
+
+        var appointmentEntities = await context.Appointments
             .AsNoTracking()
             .Where(a => a.PatientId == patient.PatientId &&
                         (a.Slot.SlotDate < today ||
@@ -430,6 +458,9 @@ public class PatientController(DamsDbContext context, IWebHostEnvironment enviro
             .Include(a => a.Doctor).ThenInclude(d => d.Clinic)
             .Include(a => a.Slot)
             .OrderByDescending(a => a.Slot.SlotDate).ThenByDescending(a => a.Slot.StartTime)
+            .ToListAsync();
+
+        var appointments = appointmentEntities
             .Select(a => new PatientAppointmentListItemViewModel
             {
                 AppointmentId = a.AppointmentId,
@@ -443,10 +474,10 @@ public class PatientController(DamsDbContext context, IWebHostEnvironment enviro
                 EndTime = a.Slot.EndTime,
                 Status = a.Status,
                 CreatedAt = a.CreatedAt,
-                HasReview = reviewedDoctorIds.Contains(a.DoctorId),
-                CanReview = a.Status == AppStatuses.Completed && !reviewedDoctorIds.Contains(a.DoctorId)
+                HasReview = reviewedDoctorIdSet.Contains(a.DoctorId),
+                CanReview = a.Status == AppStatuses.Completed && !reviewedDoctorIdSet.Contains(a.DoctorId)
             })
-            .ToListAsync();
+            .ToList();
 
         return View(new PatientAppointmentsPageViewModel
         {
