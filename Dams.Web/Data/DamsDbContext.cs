@@ -202,7 +202,7 @@ public class DamsDbContext(DbContextOptions<DamsDbContext> options) : DbContext(
         modelBuilder.Entity<Appointment>(entity =>
         {
             entity.HasKey(e => e.AppointmentId);
-            entity.HasIndex(e => e.SlotId).IsUnique().HasDatabaseName("UQ_Appointments_SlotId");
+            entity.HasIndex(e => e.SlotId).HasDatabaseName("IX_Appointments_SlotId");
             entity.HasIndex(e => e.PatientId).HasDatabaseName("IX_Appointments_PatientId");
             entity.HasIndex(e => e.DoctorId).HasDatabaseName("IX_Appointments_DoctorId");
             entity.HasIndex(e => e.Status).HasDatabaseName("IX_Appointments_Status");
@@ -219,8 +219,8 @@ public class DamsDbContext(DbContextOptions<DamsDbContext> options) : DbContext(
                 .HasConstraintName("FK_Appointments_Doctors")
                 .OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(e => e.Slot)
-                .WithOne(e => e.Appointment)
-                .HasForeignKey<Appointment>(e => e.SlotId)
+                .WithMany(e => e.Appointments)
+                .HasForeignKey(e => e.SlotId)
                 .HasConstraintName("FK_Appointments_Slots")
                 .OnDelete(DeleteBehavior.NoAction);
             entity.ToTable(t => t.HasCheckConstraint("CK_Appointments_Status", "[Status] IN ('Pending', 'Confirmed', 'Rejected', 'Cancelled', 'Completed')"));

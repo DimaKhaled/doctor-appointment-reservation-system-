@@ -236,7 +236,7 @@ public class DoctorController(DamsDbContext context, IWebHostEnvironment environ
         }
 
         var schedule = await context.Schedules
-            .Include(s => s.AppointmentSlots).ThenInclude(sl => sl.Appointment)
+            .Include(s => s.AppointmentSlots).ThenInclude(sl => sl.Appointments)
             .FirstOrDefaultAsync(s => s.ScheduleId == id && s.DoctorId == doctor.DoctorId);
 
         if (schedule is null)
@@ -249,7 +249,7 @@ public class DoctorController(DamsDbContext context, IWebHostEnvironment environ
         var today = DateOnly.FromDateTime(DateTime.Today).ToDateTime(TimeOnly.MinValue);
         var hasFutureBookedSlots = schedule.AppointmentSlots.Any(sl =>
             sl.SlotDate >= today && sl.IsBooked &&
-            sl.Appointment is { Status: AppStatuses.Pending or AppStatuses.Confirmed });
+            sl.Appointments.Any(a => a.Status == AppStatuses.Pending || a.Status == AppStatuses.Confirmed));
 
         if (hasFutureBookedSlots)
         {
@@ -294,7 +294,7 @@ public class DoctorController(DamsDbContext context, IWebHostEnvironment environ
         }
 
         var schedule = await context.Schedules
-            .Include(s => s.AppointmentSlots).ThenInclude(sl => sl.Appointment)
+            .Include(s => s.AppointmentSlots).ThenInclude(sl => sl.Appointments)
             .FirstOrDefaultAsync(s => s.ScheduleId == id && s.DoctorId == doctor.DoctorId);
 
         if (schedule is null)
@@ -302,7 +302,7 @@ public class DoctorController(DamsDbContext context, IWebHostEnvironment environ
             return NotFound();
         }
 
-        var hasAnyAppointment = schedule.AppointmentSlots.Any(sl => sl.Appointment is not null);
+        var hasAnyAppointment = schedule.AppointmentSlots.Any(sl => sl.Appointments.Any());
         if (hasAnyAppointment)
         {
             TempData["ErrorMessage"] = "Cannot delete this schedule because it has appointments associated with it.";

@@ -25,7 +25,7 @@
             @if (Model.ReviewCount > 0)
             {
                 var reviewLabel = Model.ReviewCount == 1 ? "review" : "reviews";
-                <div>@Model.AverageRating.ToString("0.0") ★ (@Model.ReviewCount @reviewLabel)</div>
+                <div>@Model.AverageRating.ToString("0.0") &#9733; (@Model.ReviewCount @reviewLabel)</div>
             }
             else
             {
@@ -50,7 +50,14 @@
 </div>
 
 <div class="form-shell mb-4">
-    <h2 class="h5 mb-3">Available Time Slots</h2>
+    <div class="d-flex justify-content-between align-items-center gap-3 mb-3 flex-wrap">
+        <div>
+            <h2 class="h5 mb-1">Available Time Slots</h2>
+            <p class="text-muted small mb-0">Choose an available slot to book an appointment request.</p>
+        </div>
+        <a asp-action="UpcomingAppointments" class="btn btn-outline-secondary btn-sm">View My Appointments</a>
+    </div>
+
     @if (Model.AvailableSlots.Count == 0)
     {
         <partial name="_EmptyState" model="@("No available time slots right now. Please check back later.")" />
@@ -61,21 +68,27 @@
             @foreach (var dateGroup in Model.AvailableSlots.GroupBy(s => s.SlotDate))
             {
                 <div class="col-12">
-                    <div class="fw-semibold small mb-1">@dateGroup.Key.ToString("dddd, MMM d")</div>
+                    <div class="fw-semibold small mb-2">@dateGroup.Key.ToString("dddd, MMM d")</div>
                     <div class="d-flex flex-wrap gap-2 mb-2">
                         @foreach (var slot in dateGroup)
                         {
-                            <form asp-controller="Patient" asp-action="BookAppointment" method="post" class="d-inline">
-                                <input type="hidden" name="slotId" value="@slot.SlotId" />
-                                <input type="hidden" name="doctorId" value="@Model.DoctorId" />
-                                <button type="submit" class="badge text-bg-primary border-0"
-                                        style="cursor:pointer;">
-                                    @slot.StartTime.ToString("h:mm tt")
-                                </button>
-                            </form>
+                   
+                                            {
+                                                <form asp-action="BookAppointment" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="doctorId" value="@Model.DoctorId" />
+                                                    <input type="hidden" name="slotId" value="@slot.SlotId" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                        @slot.StartTime.ToString("h:mm tt") - @slot.EndTime.ToString("h:mm tt")
+                                                    </button>
+                                                </form>
+                                            }
+                                       
+                                }
+                            </div>
                         }
                     </div>
-                </div>
+                  
             }
         </div>
     }
@@ -92,10 +105,11 @@
         @foreach (var review in Model.Reviews)
         {
             <div class="mb-3 pb-3 border-bottom">
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between gap-3 flex-wrap">
                     <span class="fw-semibold">@review.ReviewerName</span>
-                    <span>@review.Rating ★</span>
+                    <span>@review.Rating &#9733;</span>
                 </div>
+                <div class="text-muted small mb-2">@review.CreatedAt.ToLocalTime().ToString("MMM d, yyyy")</div>
                 <p class="mb-0 text-muted small">@review.ReviewText</p>
             </div>
         }

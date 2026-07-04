@@ -1,0 +1,51 @@
+@model Dams.Web.ViewModels.Patient.CreateReviewViewModel
+
+@{
+    ViewData["Title"] = "Write Review";
+}
+
+<div class="page-header">
+    <a asp-action="AppointmentHistory" class="text-decoration-none small">&larr; Back to Appointment History</a>
+</div>
+
+<div class="form-shell auth-panel mx-auto">
+    <h1 class="h4 mb-1">Write a Review</h1>
+    <p class="text-muted mb-4">Share your experience with Dr. @Model.DoctorName.</p>
+
+    <div class="rounded border bg-light-subtle p-3 mb-4">
+        <div class="fw-semibold">Dr. @Model.DoctorName</div>
+        <div class="text-muted small">@Model.SpecializationName</div>
+        <div class="text-muted small">@Model.ClinicName</div>
+    </div>
+
+    <form asp-action="CreateReview" method="post">
+        @Html.AntiForgeryToken()
+        <input asp-for="DoctorId" type="hidden" />
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="Rating" class="form-label">Rating</label>
+            <select asp-for="Rating" class="form-select">
+                <option value="">Select rating</option>
+                <option value="5">5 - Excellent</option>
+                <option value="4">4 - Very good</option>
+                <option value="3">3 - Good</option>
+                <option value="2">2 - Fair</option>
+                <option value="1">1 - Poor</option>
+            </select>
+            <span asp-validation-for="Rating" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ReviewText" class="form-label">Review</label>
+            <textarea asp-for="ReviewText" class="form-control" rows="5" placeholder="Describe your appointment experience"></textarea>
+            <span asp-validation-for="ReviewText" class="text-danger small"></span>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Submit Review</button>
+            <a asp-action="AppointmentHistory" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
+</div>

@@ -143,3 +143,11 @@ body {
     font-size: 2rem;
     font-weight: 600;
 }
+
+.nav-pills .nav-link {
+    color: #334155;
+}
+
+.nav-pills .nav-link.active {
+    background: #0d6efd;
+}

@@ -20,5 +20,5 @@ public class AppointmentSlot
 
     public Doctor Doctor { get; set; } = null!;
 
-    public Appointment? Appointment { get; set; }
+    public ICollection<Appointment> Appointments { get; set; } = [];
 }

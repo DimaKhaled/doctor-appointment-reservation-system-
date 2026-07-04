@@ -1,0 +1,72 @@
+@model Dams.Web.ViewModels.Patient.PatientAppointmentsPageViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="page-header">
+    <h1 class="h3 mb-1">@Model.Title</h1>
+    <p class="text-muted mb-0">@Model.Description</p>
+</div>
+
+<ul class="nav nav-pills mb-3">
+    <li class="nav-item">
+        <a class="nav-link @(Model.ActiveTab == "Upcoming" ? "active" : "")" asp-action="UpcomingAppointments">Upcoming</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(Model.ActiveTab == "History" ? "active" : "")" asp-action="AppointmentHistory">History</a>
+    </li>
+</ul>
+
+<div class="table-shell">
+    @if (Model.Appointments.Count == 0)
+    {
+        <partial name="_EmptyState" model="@("You do not have any appointment history yet.")" />
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Doctor</th>
+                        <th>Clinic</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var appointment in Model.Appointments)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="DoctorProfile" asp-route-id="@appointment.DoctorId">Dr. @appointment.DoctorName</a>
+                                <div class="text-muted small">@appointment.SpecializationName</div>
+                            </td>
+                            <td>@appointment.ClinicName, @appointment.ClinicCity</td>
+                            <td>@appointment.SlotDate.ToString("MMM d, yyyy")</td>
+                            <td>@appointment.StartTime.ToString("h:mm tt") - @appointment.EndTime.ToString("h:mm tt")</td>
+                            <td><partial name="_StatusBadge" model="@appointment.Status" /></td>
+                            <td class="text-end">
+                                @if (appointment.CanReview)
+                                {
+                                    <a asp-action="CreateReview" asp-route-doctorId="@appointment.DoctorId" class="btn btn-sm btn-primary">Write Review</a>
+                                }
+                                else if (appointment.HasReview)
+                                {
+                                    <span class="text-muted small">Review submitted</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">No actions available</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
