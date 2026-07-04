@@ -65,7 +65,14 @@
                     <div class="d-flex flex-wrap gap-2 mb-2">
                         @foreach (var slot in dateGroup)
                         {
-                            <span class="badge text-bg-light border">@slot.StartTime.ToString("h:mm tt")</span>
+                            <form asp-controller="Patient" asp-action="BookAppointment" method="post" class="d-inline">
+                                <input type="hidden" name="slotId" value="@slot.SlotId" />
+                                <input type="hidden" name="doctorId" value="@Model.DoctorId" />
+                                <button type="submit" class="badge text-bg-primary border-0"
+                                        style="cursor:pointer;">
+                                    @slot.StartTime.ToString("h:mm tt")
+                                </button>
+                            </form>
                         }
                     </div>
                 </div>

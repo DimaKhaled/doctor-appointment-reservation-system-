@@ -326,4 +326,50 @@ public class PatientController(DamsDbContext context, IWebHostEnvironment enviro
 
         return $"/images/patients/{fileName}";
     }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> BookAppointment(int slotId, int doctorId)
+    {
+        var patient = await GetCurrentPatientAsync();
+        if (patient is null)
+            return RedirectToAction("AccessDenied", "Account");
+
+        // Check slot exists and is not booked
+        var slot = await context.AppointmentSlots
+            .FirstOrDefaultAsync(s => s.SlotId == slotId && !s.IsBooked);
+
+        if (slot is null)
+        {
+            TempData["ErrorMessage"] = "This slot is no longer available.";
+            return RedirectToAction("DoctorProfile", new { id = doctorId });
+        }
+
+        // Prevent double booking
+        var alreadyBooked = await context.Appointments
+            .AnyAsync(a => a.PatientId == patient.PatientId && a.SlotId == slotId);
+
+        if (alreadyBooked)
+        {
+            TempData["ErrorMessage"] = "You have already booked this slot.";
+            return RedirectToAction("DoctorProfile", new { id = doctorId });
+        }
+
+        // Create appointment
+        var appointment = new Appointment
+        {
+            PatientId = patient.PatientId,
+            DoctorId = doctorId,
+            SlotId = slotId,
+            Status = AppStatuses.Pending,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        slot.IsBooked = true;
+
+        context.Appointments.Add(appointment);
+        await context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Appointment booked successfully. Waiting for doctor confirmation.";
+        return RedirectToAction("Index");
+    }
 }
