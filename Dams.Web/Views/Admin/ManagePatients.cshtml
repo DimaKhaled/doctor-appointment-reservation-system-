@@ -1,0 +1,111 @@
+﻿@model IEnumerable<Dams.Web.ViewModels.Admin.PatientListItemViewModel>
+
+@{
+    ViewData["Title"] = "Patient Management";
+}
+
+<div class="page-header mb-4">
+
+    <h1 class="display-6 fw-bold">Patient Management</h1>
+
+    <p class="text-muted">
+        View all registered patients.
+    </p>
+
+</div>
+
+<div class="card shadow-sm border-0">
+
+    <div class="card-header d-flex justify-content-between align-items-center">
+
+        <h4 class="mb-0">
+            Registered Patients
+        </h4>
+
+        <span class="badge bg-primary fs-6">
+
+            @Model.Count() Patients
+
+        </span>
+
+    </div>
+
+    <div class="card-body">
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info">
+
+                No patients found.
+
+            </div>
+        }
+        else
+        {
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th>Name</th>
+
+                        <th>Email</th>
+
+                        <th>Phone</th>
+
+                        <th>Gender</th>
+
+                        <th>Date of Birth</th>
+
+                        <th>Blood Type</th>
+
+                        <th></th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var patient in Model)
+                    {
+                        <tr>
+
+                            <td>@patient.FullName</td>
+
+                            <td>@patient.Email</td>
+
+                            <td>@patient.PhoneNumber</td>
+
+                            <td>@patient.Gender</td>
+
+                            <td>@patient.DateOfBirth.ToString("dd MMM yyyy")</td>
+
+                            <td>@patient.BloodType</td>
+
+                            <td>
+
+                                <a asp-action="PatientDetails"
+                                   asp-route-id="@patient.PatientId"
+                                   class="btn btn-outline-primary btn-sm">
+
+                                    Details
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        }
+
+    </div>
+
+</div>

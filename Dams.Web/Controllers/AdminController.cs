@@ -263,4 +263,62 @@ public class AdminController(DamsDbContext context, IPasswordService passwordSer
 
         return RedirectToAction(nameof(ManageDoctors));
     }
+
+
+    public async Task<IActionResult> ManagePatients()
+    {
+        var patients = await context.Patients
+
+            .Include(p => p.User)
+
+            .Select(p => new PatientListItemViewModel
+            {
+                PatientId = p.PatientId,
+                FullName = p.User.FullName,
+                Email = p.User.Email,
+                PhoneNumber = p.User.PhoneNumber,
+                Gender = p.User.Gender,
+                DateOfBirth = p.DateOfBirth,
+                BloodType = p.BloodType ?? "-"
+            })
+
+            .OrderBy(p => p.FullName)
+
+            .ToListAsync();
+
+        return View(patients);
+    }
+
+
+    public async Task<IActionResult> PatientDetails(int id)
+    {
+        var patient = await context.Patients
+
+            .Include(p => p.User)
+
+            .Where(p => p.PatientId == id)
+
+            .Select(p => new PatientDetailsViewModel
+            {
+                PatientId = p.PatientId,
+                FullName = p.User.FullName,
+                Email = p.User.Email,
+                PhoneNumber = p.User.PhoneNumber,
+                Gender = p.User.Gender,
+                DateOfBirth = p.DateOfBirth,
+                BloodType = p.BloodType ?? "-",
+                Allergies = p.Allergies ?? "-",
+                ChronicDiseases = p.ChronicDiseases ?? "-",
+                ProfilePicturePath = p.ProfilePicturePath
+            })
+
+            .SingleOrDefaultAsync();
+
+        if (patient is null)
+        {
+            return NotFound();
+        }
+
+        return View(patient);
+    }
 }
