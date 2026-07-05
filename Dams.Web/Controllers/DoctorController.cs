@@ -483,7 +483,7 @@ public class DoctorController(DamsDbContext context, IWebHostEnvironment environ
         Directory.CreateDirectory(uploadsFolder);
 
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-        var fileName = $"doctor-{doctorId}{extension}";
+        var fileName = $"doctor-{doctorId}-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}{extension}";
         var fullPath = Path.Combine(uploadsFolder, fileName);
 
         await using var stream = new FileStream(fullPath, FileMode.Create);

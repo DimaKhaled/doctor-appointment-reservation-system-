@@ -675,5 +675,6 @@ public class PatientController(DamsDbContext context, IWebHostEnvironment enviro
             .Include(d => d.Specialization)
             .Include(d => d.Clinic)
             .FirstOrDefaultAsync(d => d.DoctorId == doctorId);
+
     }
 }

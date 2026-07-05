@@ -72,17 +72,23 @@
                     <div class="d-flex flex-wrap gap-2 mb-2">
                         @foreach (var slot in dateGroup)
                         {
-                            <form asp-action="BookAppointment" method="post" class="d-inline">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="doctorId" value="@Model.DoctorId" />
-                                <input type="hidden" name="slotId" value="@slot.SlotId" />
-                                <button type="submit" class="btn btn-sm btn-outline-primary">
-                                    @slot.StartTime.ToString("h:mm tt") - @slot.EndTime.ToString("h:mm tt")
-                                </button>
-                            </form>
+                   
+                                            {
+                                                <form asp-action="BookAppointment" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="doctorId" value="@Model.DoctorId" />
+                                                    <input type="hidden" name="slotId" value="@slot.SlotId" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                        @slot.StartTime.ToString("h:mm tt") - @slot.EndTime.ToString("h:mm tt")
+                                                    </button>
+                                                </form>
+                                            }
+                                       
+                                }
+                            </div>
                         }
                     </div>
-                </div>
+                  
             }
         </div>
     }
