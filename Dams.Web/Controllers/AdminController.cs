@@ -321,4 +321,146 @@ public class AdminController(DamsDbContext context, IPasswordService passwordSer
 
         return View(patient);
     }
+
+
+    [HttpGet]
+    public async Task<IActionResult> ManageSpecializations()
+    {
+        var specializations = await context.Specializations
+        .Select(s => new SpecializationListItemViewModel
+        {
+            SpecializationId = s.SpecializationId,
+            Name = s.Name,
+            DoctorsCount = s.Doctors.Count,
+            CanDelete = !s.Doctors.Any()
+        })
+        .OrderBy(s => s.Name)
+        .ToListAsync();
+
+        return View(specializations);
+    }
+
+
+    [HttpGet]
+    public IActionResult AddSpecialization()
+    {
+        return View(new AddSpecializationViewModel());
+    }
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddSpecialization(AddSpecializationViewModel model)
+    {
+        model.Name = model.Name.Trim();
+
+        if (await context.Specializations
+            .AnyAsync(s => s.Name.ToLower() == model.Name.ToLower()))
+        {
+            ModelState.AddModelError(nameof(model.Name),
+                "This specialization already exists.");
+        }
+
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var specialization = new Specialization
+        {
+            Name = model.Name
+        };
+
+        context.Specializations.Add(specialization);
+
+        await context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Specialization added successfully.";
+
+        return RedirectToAction(nameof(ManageSpecializations));
+    }
+
+
+    [HttpGet]
+    public async Task<IActionResult> EditSpecialization(int id)
+    {
+        var specialization = await context.Specializations
+            .FindAsync(id);
+
+        if (specialization == null)
+        {
+            return NotFound();
+        }
+
+        var viewModel = new EditSpecializationViewModel
+        {
+            SpecializationId = specialization.SpecializationId,
+            Name = specialization.Name
+        };
+
+        return View(viewModel);
+    }
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditSpecialization(EditSpecializationViewModel model)
+    {
+        model.Name = model.Name.Trim();
+
+        if (await context.Specializations.AnyAsync(s =>
+                s.Name.ToLower() == model.Name.ToLower()
+                && s.SpecializationId != model.SpecializationId))
+        {
+            ModelState.AddModelError(nameof(model.Name),
+                "This specialization already exists.");
+        }
+
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var specialization = await context.Specializations
+            .FindAsync(model.SpecializationId);
+
+        if (specialization == null)
+        {
+            return NotFound();
+        }
+
+        specialization.Name = model.Name;
+
+        await context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Specialization updated successfully.";
+
+        return RedirectToAction(nameof(ManageSpecializations));
+    }
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteSpecialization(int id)
+    {
+        var specialization = await context.Specializations
+            .Include(s => s.Doctors)
+            .FirstOrDefaultAsync(s => s.SpecializationId == id);
+
+        if (specialization is null)
+        {
+            TempData["ErrorMessage"] = "Specialization not found.";
+            return RedirectToAction(nameof(ManageSpecializations));
+        }
+
+        if (specialization.Doctors.Any())
+        {
+            TempData["ErrorMessage"] = "This specialization cannot be deleted because it is assigned to one or more doctors.";
+            return RedirectToAction(nameof(ManageSpecializations));
+        }
+
+        context.Specializations.Remove(specialization);
+
+        await context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Specialization deleted successfully.";
+
+        return RedirectToAction(nameof(ManageSpecializations));
+    }
 }

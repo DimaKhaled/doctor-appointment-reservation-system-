@@ -1,0 +1,127 @@
+﻿@using Dams.Web.ViewModels.Admin
+@model IEnumerable<SpecializationListItemViewModel>
+
+@{
+    ViewData["Title"] = "Manage Specializations";
+}
+
+<div class="page-header mb-4">
+    <h1 class="display-6 fw-bold">Manage Specializations</h1>
+    <p class="text-muted">
+        Add, edit, and delete medical specializations.
+    </p>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="card shadow-sm border-0">
+
+    <div class="card-header d-flex justify-content-between align-items-center">
+
+        <h4 class="mb-0">
+            Specializations
+        </h4>
+
+        <a asp-action="AddSpecialization"
+           class="btn btn-primary">
+            Add Specialization
+        </a>
+
+    </div>
+
+    <div class="card-body">
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info">
+                No specializations found.
+            </div>
+        }
+        else
+        {
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+
+                    <tr>
+                        <th>Name</th>
+                        <th>Doctors</th>
+                        <th style="width:220px">Actions</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var specialization in Model)
+                    {
+                        <tr>
+
+                            <td>@specialization.Name</td>
+
+                            <td>@specialization.DoctorsCount</td>
+
+                            <td>
+
+                                <div class="d-flex gap-2">
+
+                                    <a asp-action="EditSpecialization"
+                                       asp-route-id="@specialization.SpecializationId"
+                                       class="btn btn-outline-primary btn-sm">
+                                        Edit
+                                    </a>
+
+                                    @if (specialization.CanDelete)
+                                    {
+                                        <form asp-action="DeleteSpecialization"
+                                              asp-route-id="@specialization.SpecializationId"
+                                              method="post">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="btn btn-outline-danger btn-sm"
+                                                    onclick="return confirm('Are you sure you want to delete this specialization?');">
+
+                                                Delete
+
+                                            </button>
+
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-outline-secondary btn-sm"
+                                                disabled
+                                                title="This specialization is assigned to one or more doctors and cannot be deleted.">
+                                            Delete
+                                        </button>
+                                    }
+                                    
+                                </div>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+        }
+
+    </div>
+
+</div>
