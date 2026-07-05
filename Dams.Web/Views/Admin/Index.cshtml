@@ -1,13 +1,149 @@
+@using Dams.Web.ViewModels.Admin
+@model AdminDashboardViewModel
 @{
     ViewData["Title"] = "Admin Dashboard";
 }
 
-<div class="page-header">
-    <h1 class="h3 mb-1">Admin Dashboard</h1>
-    <p class="text-muted mb-0">Phase 0 role authorization is active for Admin users.</p>
+
+<div class="page-header mb-4">
+    <h1 class="display-6 fw-bold">Admin Dashboard</h1>
+    <p class="text-muted">
+        Welcome to the Doctor Appointment Management System administration panel.
+    </p>
 </div>
 
-<div class="dashboard-panel">
-    <h2 class="h5">Next Phase Modules</h2>
-    <p class="mb-0 text-muted">Doctor, patient, specialization, appointment, and clinic management will build on this foundation.</p>
+@* <div class="dashboard-panel">
+    <p>Total Doctors: @Model.TotalDoctors</p>
+
+    <p>Total Patients: @Model.TotalPatients</p>
+
+    <p>Total Appointments: @Model.TotalAppointments</p>
+
+    <p>Monthly Appointments: @Model.MonthlyAppointments</p>
+
+    <p>Monthly Completed Appointments: @Model.MonthlyCompletedAppointments</p>
+
+    <p>Monthly Cancelled Appointments: @Model.MonthlyCancelledAppointments</p>
+
+    <p>Monthly New Patients: @Model.MonthlyNewPatients</p>
+
+</div> *@
+
+<div class="row g-4">
+
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+                <h2 class="display-5 text-primary">@Model.TotalDoctors</h2>
+                <h5>Total Doctors</h5>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+                <h2 class="display-5 text-success">@Model.TotalPatients</h2>
+                <h5>Total Patients</h5>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+                <h2 class="display-5 text-danger">@Model.TotalAppointments</h2>
+                <h5>Total Appointments</h5>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+
+<div class="card shadow-sm border-0 mt-5">
+
+    <div class="card-header">
+        <h4 class="mb-0">
+            Monthly Statistics
+        </h4>
+    </div>
+
+    <div class="card-body">
+
+        <div class="row text-center">
+
+            <div class="col-md-3">
+                <h3>@Model.MonthlyAppointments</h3>
+                <p class="text-muted">Appointments</p>
+            </div>
+
+            <div class="col-md-3">
+                <h3 class="text-success">
+                    @Model.MonthlyCompletedAppointments
+                </h3>
+                <p class="text-muted">Completed</p>
+            </div>
+
+            <div class="col-md-3">
+                <h3 class="text-danger">
+                    @Model.MonthlyCancelledAppointments
+                </h3>
+                <p class="text-muted">Cancelled</p>
+            </div>
+
+            <div class="col-md-3">
+                <h3 class="text-primary">
+                    @Model.MonthlyNewPatients
+                </h3>
+                <p class="text-muted">New Patients</p>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="card shadow-sm border-0 mt-5">
+
+    <div class="card-header">
+        <h4 class="mb-0">
+            Quick Actions
+        </h4>
+    </div>
+
+    <div class="card-body">
+
+        <div class="d-flex flex-wrap gap-3">
+
+            @* <a asp-controller="Admin" asp-action="AddDoctor" class="btn btn-primary">
+                Add Doctor
+            </a> *@
+
+            <a asp-controller="Admin" asp-action="ManageDoctors" class="btn btn-outline-primary">
+                Manage Doctors
+            </a>
+
+            <a asp-action="Specializations" class="btn btn-outline-warning">
+                Manage Specializations
+            </a>
+
+            <a asp-action="Clinics" class="btn btn-outline-warning">
+                Manage Clinics
+            </a>
+
+            <a asp-action="Patients" class="btn btn-outline-success">
+                Manage Patients
+            </a>
+
+            <a asp-action="Appointments" class="btn btn-outline-danger">
+                View Appointments
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+

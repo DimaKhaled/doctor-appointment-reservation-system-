@@ -1,0 +1,116 @@
+﻿@using Dams.Web.ViewModels.Admin
+@model AddDoctorViewModel
+
+@{
+    ViewData["Title"] = "Add Doctor";
+}
+
+<div class="auth-panel mx-auto">
+    <div class="page-header">
+        <h1 class="h3 mb-1">Create Doctor Account</h1>
+    </div>
+
+    <div class="form-shell">
+        <form asp-action="AddDoctor" method="post" novalidate>
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="FullName" class="form-label"></label>
+                <input asp-for="FullName" class="form-control" autocomplete="name" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" autocomplete="email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="PhoneNumber" class="form-label"></label>
+                <input asp-for="PhoneNumber" class="form-control" autocomplete="tel" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Gender" class="form-label"></label>
+                <select asp-for="Gender" class="form-select">
+                    <option value="">Select gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+                <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="SpecializationId" class="form-label"></label>
+                <select asp-for="SpecializationId"
+                        asp-items="Model.Specializations"
+                        class="form-select">
+                    <option value="">Select Specialization</option>
+                </select>
+                <span asp-validation-for="SpecializationId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ClinicId" class="form-label"></label>
+                <select asp-for="ClinicId"
+                        asp-items="Model.Clinics"
+                        class="form-select">
+                    <option value="">Select Clinic</option>
+                </select>
+                <span asp-validation-for="ClinicId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Qualifications" class="form-label"></label>
+                <textarea asp-for="Qualifications"
+                          class="form-control"
+                          rows="3"></textarea>
+                <span asp-validation-for="Qualifications" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ExperienceYears" class="form-label"></label>
+                <input asp-for="ExperienceYears"
+                       class="form-control"
+                       min="0" />
+                <span asp-validation-for="ExperienceYears" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Biography" class="form-label"></label>
+                <textarea asp-for="Biography"
+                          class="form-control"
+                          rows="4"></textarea>
+                <span asp-validation-for="Biography" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="InitialPassword" class="form-label"></label>
+                <input asp-for="InitialPassword"
+                       class="form-control"
+                       autocomplete="new-password" />
+                <span asp-validation-for="InitialPassword" class="text-danger"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="ConfirmInitialPassword" class="form-label"></label>
+                <input asp-for="ConfirmInitialPassword"
+                       class="form-control"
+                       autocomplete="new-password" />
+                <span asp-validation-for="ConfirmInitialPassword" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                Create Doctor
+            </button>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
