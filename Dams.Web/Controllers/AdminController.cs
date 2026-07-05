@@ -148,4 +148,119 @@ public class AdminController(DamsDbContext context, IPasswordService passwordSer
                 Text = c.ClinicName
             }).ToListAsync();
     }
+
+
+    public async Task<IActionResult> ManageDoctors()
+    {
+        var doctors = await context.Doctors
+            .Include(d => d.User)
+            .Include(d => d.Specialization)
+            .Include(d => d.Clinic)
+            .Select(d => new DoctorListItemViewModel
+            {
+                DoctorId = d.DoctorId,
+                FullName = d.User.FullName,
+                Email = d.User.Email,
+                PhoneNumber = d.User.PhoneNumber,
+                Specialization = d.Specialization.Name,
+                Clinic = d.Clinic.ClinicName,
+                ExperienceYears = d.ExperienceYears,
+                Status = d.Status
+            })
+            .ToListAsync();
+        return View(doctors);
+    }
+
+
+    [HttpGet]
+    public async Task<IActionResult> DoctorDetails(int id)
+    {
+        var doctor = await context.Doctors
+        .Include(d => d.User)
+        .Include(d => d.Specialization)
+        .Include(d => d.Clinic)
+        .FirstOrDefaultAsync(d => d.DoctorId == id);
+
+        if (doctor is null)
+        {
+            TempData["ErrorMessage"] = "Doctor not found.";
+            return RedirectToAction(nameof(ManageDoctors));
+        }
+
+        var viewModel = new DoctorDetailsViewModel
+        {
+            DoctorId = doctor.DoctorId,
+            FullName = doctor.User.FullName,
+            Email = doctor.User.Email,
+            PhoneNumber = doctor.User.PhoneNumber,
+            Gender = doctor.User.Gender,
+            Specialization = doctor.Specialization.Name,
+            Clinic = doctor.Clinic.ClinicName,
+            Qualifications = doctor.Qualifications,
+            ExperienceYears = doctor.ExperienceYears,
+            Biography = doctor.Biography,
+            Status = doctor.Status,
+            ProfilePicturePath = doctor.ProfilePicturePath
+        };
+
+        return View(viewModel);
+    }
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ActivateDoctor(int id)
+    {
+        var doctor = await context.Doctors
+            .FirstOrDefaultAsync(d => d.DoctorId == id);
+
+        if (doctor is null)
+        {
+            TempData["ErrorMessage"] = "Doctor not found.";
+            return RedirectToAction(nameof(ManageDoctors));
+        }
+
+        if (doctor.Status == AppStatuses.Active)
+        {
+            TempData["ErrorMessage"] = "Doctor is already active.";
+            return RedirectToAction(nameof(ManageDoctors));
+        }
+
+        doctor.Status = AppStatuses.Active;
+
+        await context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Doctor activated successfully.";
+
+        return RedirectToAction(nameof(ManageDoctors));
+    }
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeactivateDoctor(int id)
+    {
+        var doctor = await context.Doctors
+            .FirstOrDefaultAsync(d => d.DoctorId == id);
+
+        if (doctor is null)
+        {
+            TempData["ErrorMessage"] = "Doctor not found.";
+            return RedirectToAction(nameof(ManageDoctors));
+        }
+
+        if (doctor.Status == AppStatuses.Inactive)
+        {
+            TempData["ErrorMessage"] = "Doctor is already inactive.";
+            return RedirectToAction(nameof(ManageDoctors));
+        }
+
+        doctor.Status = AppStatuses.Inactive;
+
+        await context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Doctor deactivated successfully.";
+
+        return RedirectToAction(nameof(ManageDoctors));
+    }
 }

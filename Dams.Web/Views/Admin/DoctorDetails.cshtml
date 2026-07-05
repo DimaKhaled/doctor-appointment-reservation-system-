@@ -1,0 +1,176 @@
+﻿@using Dams.Web.ViewModels.Admin
+@model DoctorDetailsViewModel
+
+@{
+    ViewData["Title"] = "Doctor Details";
+}
+
+<div class="page-header mb-4">
+    <h1 class="display-6 fw-bold">Doctor Details</h1>
+    <p class="text-muted">
+        View complete information about the selected doctor.
+    </p>
+</div>
+
+<div class="row">
+
+    <!-- Left Card -->
+
+    <div class="col-lg-4">
+
+        <div class="card shadow-sm border-0 mb-4">
+
+            <div class="card-body text-center">
+
+                @if (!string.IsNullOrWhiteSpace(Model.ProfilePicturePath))
+                {
+                    <img src="@Model.ProfilePicturePath"
+                         class="rounded-circle mb-3"
+                         style="width:170px;height:170px;object-fit:cover;" />
+                }
+                else
+                {
+                    <img src="~/images/default-doctor.jpg"
+                         class="rounded-circle mb-3"
+                         style="width:170px;height:170px;object-fit:cover;" />
+                }
+
+                <h3>@Model.FullName</h3>
+
+                @if (Model.Status == AppStatuses.Active)
+                {
+                    <span class="badge bg-success fs-6">Active</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger fs-6">Inactive</span>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Right Card -->
+
+    <div class="col-lg-8">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-header">
+                <h4 class="mb-0">
+                    Doctor Information
+                </h4>
+            </div>
+
+            <div class="card-body">
+
+                <table class="table table-borderless">
+
+                    <tr>
+                        <th width="220">Email</th>
+                        <td>@Model.Email</td>
+                    </tr>
+
+                    <tr>
+                        <th>Phone Number</th>
+                        <td>@Model.PhoneNumber</td>
+                    </tr>
+
+                    <tr>
+                        <th>Gender</th>
+                        <td>@Model.Gender</td>
+                    </tr>
+
+                    <tr>
+                        <th>Specialization</th>
+                        <td>@Model.Specialization</td>
+                    </tr>
+
+                    <tr>
+                        <th>Clinic</th>
+                        <td>@Model.Clinic</td>
+                    </tr>
+
+                    <tr>
+                        <th>Experience</th>
+                        <td>@Model.ExperienceYears Years</td>
+                    </tr>
+
+                    <tr>
+                        <th>Qualifications</th>
+                        <td>@Model.Qualifications</td>
+                    </tr>
+
+                    <tr>
+                        <th>Biography</th>
+                        <td>@Model.Biography</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="card shadow-sm border-0 mt-4">
+
+    <div class="card-header">
+        <h4 class="mb-0">
+            Account Actions
+        </h4>
+    </div>
+
+    <div class="card-body">
+
+        <div class="d-flex gap-3">
+
+            <a asp-action="ManageDoctors"
+               class="btn btn-secondary">
+                Back
+            </a>
+
+            @if (Model.Status == AppStatuses.Active)
+            {
+                <form asp-action="DeactivateDoctor"
+                      asp-route-id="@Model.DoctorId"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="btn btn-danger"
+                            onclick="return confirm('Are you sure you want to deactivate this doctor?');">
+                        Deactivate Doctor
+                    </button>
+
+                </form>
+            }
+            else
+            {
+                <form asp-action="ActivateDoctor"
+                      asp-route-id="@Model.DoctorId"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="btn btn-success"
+                            onclick="return confirm('Are you sure you want to activate this doctor?');">
+                        Activate Doctor
+                    </button>
+
+                </form>
+            }
+
+        </div>
+
+    </div>
+
+</div>
