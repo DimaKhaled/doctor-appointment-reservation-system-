@@ -49,7 +49,7 @@
         <a asp-action="Doctors" class="btn btn-primary">Find a Doctor</a>
         <a asp-action="UpcomingAppointments" class="btn btn-outline-primary">My Appointments</a>
         <a asp-action="Profile" class="btn btn-outline-secondary">My Profile</a>
-        <a asp-action="AppointmentHistory" class="btn btn-outline-secondary">Appointment History</a>
+       
     </div>
 </div>
 
@@ -71,14 +71,14 @@
                             <div class="d-flex align-items-center gap-3 mb-3">
                                 @if (!string.IsNullOrWhiteSpace(doctor.ProfilePicturePath))
                                 {
-                                    <img src="@doctor.ProfilePicturePath" alt="Dr. @doctor.FullName" class="profile-picture" style="width:48px;height:48px;" />
+                                    <img src="@doctor.ProfilePicturePath" alt="@doctor.FullName" class="profile-picture" style="width:48px;height:48px;" />
                                 }
                                 else
                                 {
                                     <div class="profile-picture-placeholder" style="width:48px;height:48px;font-size:1rem;">@doctor.FullName.Substring(0, 1)</div>
                                 }
                                 <div>
-                                    <div class="fw-semibold">Dr. @doctor.FullName</div>
+                                    <div class="fw-semibold">@doctor.FullName</div>
                                     <div class="text-muted small">@doctor.SpecializationName</div>
                                 </div>
                             </div>
