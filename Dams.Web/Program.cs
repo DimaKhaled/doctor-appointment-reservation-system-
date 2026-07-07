@@ -2,6 +2,7 @@ using Dams.Web.Data;
 using Dams.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using NToastNotify;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,15 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // Add services to the container.
 builder.Services.AddDbContext<DamsDbContext>(options =>
     options.UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure()));
+builder.Services.AddMvc().AddNToastNotifyToastr(
+
+    new NToastNotify.ToastrOptions()
+    {
+        ProgressBar = true,
+        CloseButton = true,
+        PositionClass = ToastPositions.TopRight
+    }
+    );
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

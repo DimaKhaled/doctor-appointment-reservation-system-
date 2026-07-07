@@ -8,11 +8,13 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NToastNotify;
 
 namespace Dams.Web.Controllers;
 
-public class AccountController(DamsDbContext context, IPasswordService passwordService) : Controller
+public class AccountController(DamsDbContext context, IPasswordService passwordService, IToastNotification toast) : Controller
 {
+   
     [HttpGet]
     [AllowAnonymous]
     public IActionResult Register()
@@ -124,6 +126,8 @@ public class AccountController(DamsDbContext context, IPasswordService passwordS
         {
             return Redirect(model.ReturnUrl);
         }
+
+        toast.AddSuccessToastMessage("Login successful");
 
         return RedirectToRoleDashboard(user.Role);
     }
