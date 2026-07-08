@@ -5,7 +5,7 @@
 namespace Dams.Web.Migrations
 {
     /// <inheritdoc />
-    public partial class pp : Migration
+    public partial class Pp : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

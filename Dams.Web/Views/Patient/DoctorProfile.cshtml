@@ -12,14 +12,14 @@
     <div class="d-flex align-items-start gap-4 flex-wrap">
         @if (!string.IsNullOrWhiteSpace(Model.ProfilePicturePath))
         {
-            <img src="@Model.ProfilePicturePath" alt="@Model.FullName" class="profile-picture" style="width: 96px; height: 96px;" />
+            <img src="@Model.ProfilePicturePath" alt="Dr. @Model.FullName" class="profile-picture" style="width: 96px; height: 96px;" />
         }
         else
         {
             <div class="profile-picture-placeholder" style="width: 96px; height: 96px; font-size: 2rem;">@Model.FullName.Substring(0, 1)</div>
         }
         <div class="flex-grow-1">
-            <h1 class="h4 mb-1">@Model.FullName</h1>
+            <h1 class="h4 mb-1">Dr. @Model.FullName</h1>
             <div class="text-muted mb-1">@Model.SpecializationName &middot; @Model.Gender &middot; @Model.ExperienceYears yrs experience</div>
             <div class="text-muted mb-2">@Model.ClinicName, @Model.ClinicAddress, @Model.ClinicCity</div>
             @if (Model.ReviewCount > 0)
@@ -72,23 +72,17 @@
                     <div class="d-flex flex-wrap gap-2 mb-2">
                         @foreach (var slot in dateGroup)
                         {
-                   
-                                            {
-                                                <form asp-action="BookAppointment" method="post" class="d-inline">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="doctorId" value="@Model.DoctorId" />
-                                                    <input type="hidden" name="slotId" value="@slot.SlotId" />
-                                                    <button type="submit" class="btn btn-sm btn-outline-primary">
-                                                        @slot.StartTime.ToString("h:mm tt") - @slot.EndTime.ToString("h:mm tt")
-                                                    </button>
-                                                </form>
-                                            }
-                                       
-                                }
-                            </div>
-                        
+                            <form asp-action="BookAppointment" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="doctorId" value="@Model.DoctorId" />
+                                <input type="hidden" name="slotId" value="@slot.SlotId" />
+                                <button type="submit" class="btn btn-sm btn-outline-primary">
+                                    @slot.StartTime.ToString("h:mm tt") - @slot.EndTime.ToString("h:mm tt")
+                                </button>
+                            </form>
+                        }
                     </div>
-                  
+                </div>
             }
         </div>
     }

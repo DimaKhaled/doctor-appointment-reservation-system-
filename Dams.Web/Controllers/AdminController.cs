@@ -196,9 +196,9 @@ public class AdminController(DamsDbContext context, IPasswordService passwordSer
             Gender = doctor.User.Gender,
             Specialization = doctor.Specialization.Name,
             Clinic = doctor.Clinic.ClinicName,
-            Qualifications = doctor.Qualifications,
+            Qualifications = doctor.Qualifications ?? string.Empty,
             ExperienceYears = doctor.ExperienceYears,
-            Biography = doctor.Biography,
+            Biography = doctor.Biography ?? string.Empty,
             Status = doctor.Status,
             ProfilePicturePath = doctor.ProfilePicturePath
         };
@@ -462,5 +462,213 @@ public class AdminController(DamsDbContext context, IPasswordService passwordSer
         TempData["SuccessMessage"] = "Specialization deleted successfully.";
 
         return RedirectToAction(nameof(ManageSpecializations));
+    }
+
+
+    [HttpGet]
+    public async Task<IActionResult> Appointments(string? searchTerm)
+    {
+        var normalizedSearchTerm = searchTerm?.Trim();
+
+        var query = context.Appointments
+            .Include(a => a.Patient)
+                .ThenInclude(p => p.User)
+            .Include(a => a.Doctor)
+                .ThenInclude(d => d.User)
+            .Include(a => a.Doctor)
+                .ThenInclude(d => d.Clinic)
+            .Include(a => a.Slot)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(normalizedSearchTerm))
+        {
+            query = query.Where(a =>
+                a.Patient.User.FullName.Contains(normalizedSearchTerm) ||
+                a.Doctor.User.FullName.Contains(normalizedSearchTerm));
+        }
+
+        var appointments = await query
+            .OrderByDescending(a => a.Slot.SlotDate)
+            .ThenByDescending(a => a.Slot.StartTime)
+            .Select(a => new AppointmentListItemViewModel
+            {
+                AppointmentId = a.AppointmentId,
+                PatientName = a.Patient.User.FullName,
+                DoctorName = a.Doctor.User.FullName,
+                ClinicName = a.Doctor.Clinic.ClinicName,
+                AppointmentDate = a.Slot.SlotDate,
+                StartTime = a.Slot.StartTime,
+                EndTime = a.Slot.EndTime,
+                Status = a.Status,
+                CreatedAt = a.CreatedAt
+            })
+            .ToListAsync();
+
+        var viewModel = new AppointmentMonitoringViewModel
+        {
+            SearchTerm = normalizedSearchTerm,
+            Appointments = appointments
+        };
+
+        return View(viewModel);
+    }
+
+
+    [HttpGet]
+    public async Task<IActionResult> ManageClinics()
+    {
+        var clinics = await context.Clinics
+            .Select(c => new ClinicListItemViewModel
+            {
+                ClinicId = c.ClinicId,
+                ClinicName = c.ClinicName,
+                Address = c.Address,
+                City = c.City,
+                PhoneNumber = c.PhoneNumber,
+                DoctorsCount = c.Doctors.Count,
+                CanDelete = !c.Doctors.Any()
+            })
+            .OrderBy(c => c.ClinicName)
+            .ToListAsync();
+
+        return View(clinics);
+    }
+
+
+    [HttpGet]
+    public IActionResult AddClinic()
+    {
+        return View(new AddClinicViewModel());
+    }
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddClinic(AddClinicViewModel model)
+    {
+        model.ClinicName = model.ClinicName?.Trim() ?? string.Empty;
+        model.Address = model.Address?.Trim() ?? string.Empty;
+        model.City = model.City?.Trim() ?? string.Empty;
+        model.PhoneNumber = model.PhoneNumber?.Trim() ?? string.Empty;
+
+        if (await context.Clinics.AnyAsync(c => c.ClinicName.ToLower() == model.ClinicName.ToLower()))
+        {
+            ModelState.AddModelError(nameof(model.ClinicName), "Clinic name already exists.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var clinic = new Clinic
+        {
+            ClinicName = model.ClinicName,
+            Address = model.Address,
+            City = model.City,
+            PhoneNumber = model.PhoneNumber
+        };
+
+        context.Clinics.Add(clinic);
+        await context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Clinic added successfully.";
+
+        return RedirectToAction(nameof(ManageClinics));
+    }
+
+
+    [HttpGet]
+    public async Task<IActionResult> EditClinic(int id)
+    {
+        var clinic = await context.Clinics.FindAsync(id);
+
+        if (clinic is null)
+        {
+            TempData["ErrorMessage"] = "Clinic not found.";
+            return RedirectToAction(nameof(ManageClinics));
+        }
+
+        var viewModel = new EditClinicViewModel
+        {
+            ClinicId = clinic.ClinicId,
+            ClinicName = clinic.ClinicName,
+            Address = clinic.Address,
+            City = clinic.City,
+            PhoneNumber = clinic.PhoneNumber
+        };
+
+        return View(viewModel);
+    }
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditClinic(EditClinicViewModel model)
+    {
+        model.ClinicName = model.ClinicName?.Trim() ?? string.Empty;
+        model.Address = model.Address?.Trim() ?? string.Empty;
+        model.City = model.City?.Trim() ?? string.Empty;
+        model.PhoneNumber = model.PhoneNumber?.Trim() ?? string.Empty;
+
+        if (await context.Clinics.AnyAsync(c =>
+                c.ClinicName.ToLower() == model.ClinicName.ToLower() &&
+                c.ClinicId != model.ClinicId))
+        {
+            ModelState.AddModelError(nameof(model.ClinicName), "Clinic name already exists.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var clinic = await context.Clinics.FindAsync(model.ClinicId);
+
+        if (clinic is null)
+        {
+            TempData["ErrorMessage"] = "Clinic not found.";
+            return RedirectToAction(nameof(ManageClinics));
+        }
+
+        clinic.ClinicName = model.ClinicName;
+        clinic.Address = model.Address;
+        clinic.City = model.City;
+        clinic.PhoneNumber = model.PhoneNumber;
+
+        await context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Clinic updated successfully.";
+
+        return RedirectToAction(nameof(ManageClinics));
+    }
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteClinic(int id)
+    {
+        var clinic = await context.Clinics
+            .Include(c => c.Doctors)
+            .FirstOrDefaultAsync(c => c.ClinicId == id);
+
+        if (clinic is null)
+        {
+            TempData["ErrorMessage"] = "Clinic not found.";
+            return RedirectToAction(nameof(ManageClinics));
+        }
+
+        if (clinic.Doctors.Any())
+        {
+            TempData["ErrorMessage"] = "This clinic cannot be deleted because it is assigned to one or more doctors.";
+            return RedirectToAction(nameof(ManageClinics));
+        }
+
+        context.Clinics.Remove(clinic);
+        await context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Clinic deleted successfully.";
+
+        return RedirectToAction(nameof(ManageClinics));
     }
 }

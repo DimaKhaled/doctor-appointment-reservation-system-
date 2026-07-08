@@ -57,6 +57,12 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Admin" asp-action="Index">Admin Dashboard</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Admin" asp-action="Appointments">Appointments</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Admin" asp-action="ManageClinics">Clinics</a>
+                            </li>
                         }
                     </ul>
                     <ul class="navbar-nav align-items-lg-center gap-lg-2">
@@ -134,6 +140,5 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
-    @await Component.InvokeAsync("NToastNotify")
 </body>
 </html>

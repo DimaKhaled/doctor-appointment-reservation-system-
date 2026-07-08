@@ -1,0 +1,92 @@
+@using Dams.Web.ViewModels.Admin
+@model IEnumerable<ClinicListItemViewModel>
+
+@{
+    ViewData["Title"] = "Manage Clinics";
+}
+
+<div class="page-header mb-4">
+    <h1 class="display-6 fw-bold">Clinic Management</h1>
+    <p class="text-muted">
+        Add, edit, and delete clinic records used for doctor assignments.
+    </p>
+</div>
+
+<div class="card shadow-sm border-0">
+
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Clinics</h4>
+
+        <a asp-action="AddClinic" class="btn btn-primary">
+            Add Clinic
+        </a>
+    </div>
+
+    <div class="card-body">
+        @if (!Model.Any())
+        {
+            <partial name="_EmptyState" model="@("No clinics found.")" />
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Address</th>
+                            <th>City</th>
+                            <th>Phone</th>
+                            <th>Doctors</th>
+                            <th style="width: 180px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var clinic in Model)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@clinic.ClinicName</td>
+                                <td>@clinic.Address</td>
+                                <td>@clinic.City</td>
+                                <td>@clinic.PhoneNumber</td>
+                                <td>@clinic.DoctorsCount</td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <a asp-action="EditClinic"
+                                           asp-route-id="@clinic.ClinicId"
+                                           class="btn btn-outline-primary btn-sm">
+                                            Edit
+                                        </a>
+
+                                        @if (clinic.CanDelete)
+                                        {
+                                            <form asp-action="DeleteClinic"
+                                                  asp-route-id="@clinic.ClinicId"
+                                                  method="post">
+                                                @Html.AntiForgeryToken()
+
+                                                <button type="submit"
+                                                        class="btn btn-outline-danger btn-sm"
+                                                        onclick="return confirm('Are you sure you want to delete this clinic?');">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-outline-secondary btn-sm"
+                                                    disabled
+                                                    title="This clinic is assigned to one or more doctors and cannot be deleted.">
+                                                Delete
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

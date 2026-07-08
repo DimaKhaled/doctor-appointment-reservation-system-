@@ -13,7 +13,7 @@ namespace Dams.Web.Migrations
 {
     [DbContext(typeof(DamsDbContext))]
     [Migration("20260702200033_pp")]
-    partial class pp
+    partial class Pp
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

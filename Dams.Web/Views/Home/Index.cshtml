@@ -85,7 +85,7 @@
                             <div class="d-flex align-items-center gap-3 mb-3">
                                 @if (!string.IsNullOrWhiteSpace(doctor.ProfilePicturePath))
                                 {
-                                    <img src="@doctor.ProfilePicturePath" alt="@doctor.FullName"
+                                    <img src="@doctor.ProfilePicturePath" alt="Dr. @doctor.FullName"
                                          class="profile-picture" style="width:48px;height:48px;" />
                                 }
                                 else
@@ -96,7 +96,7 @@
                                     </div>
                                 }
                                 <div>
-                                    <div class="fw-semibold">@doctor.FullName</div>
+                                    <div class="fw-semibold">Dr. @doctor.FullName</div>
                                     <div class="text-muted small">@doctor.SpecializationName</div>
                                 </div>
                             </div>

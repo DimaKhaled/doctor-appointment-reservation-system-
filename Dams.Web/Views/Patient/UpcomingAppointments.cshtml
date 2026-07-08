@@ -42,7 +42,7 @@
                     {
                         <tr>
                             <td>
-                                <a asp-action="DoctorProfile" asp-route-id="@appointment.DoctorId">@appointment.DoctorName</a>
+                                <a asp-action="DoctorProfile" asp-route-id="@appointment.DoctorId">Dr. @appointment.DoctorName</a>
                                 <div class="text-muted small">@appointment.SpecializationName</div>
                             </td>
                             <td>@appointment.ClinicName, @appointment.ClinicCity</td>

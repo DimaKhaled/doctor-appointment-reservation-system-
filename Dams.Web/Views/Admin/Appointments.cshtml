@@ -1,0 +1,85 @@
+@using Dams.Web.ViewModels.Admin
+@model AppointmentMonitoringViewModel
+
+@{
+    ViewData["Title"] = "Appointment Monitoring";
+}
+
+<div class="page-header mb-4">
+    <h1 class="display-6 fw-bold">Appointment Monitoring</h1>
+    <p class="text-muted">
+        View all appointments and search by patient or doctor name.
+    </p>
+</div>
+
+<div class="card shadow-sm border-0">
+
+    <div class="card-header">
+        <form asp-action="Appointments" method="get" class="row g-2 align-items-end">
+            <div class="col-md-8 col-lg-6">
+                <label asp-for="SearchTerm" class="form-label">Search</label>
+                <input asp-for="SearchTerm"
+                       class="form-control"
+                       placeholder="Patient name or doctor name" />
+            </div>
+
+            <div class="col-md-auto">
+                <button type="submit" class="btn btn-primary">
+                    Search
+                </button>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
+            {
+                <div class="col-md-auto">
+                    <a asp-action="Appointments" class="btn btn-outline-secondary">
+                        Clear
+                    </a>
+                </div>
+            }
+        </form>
+    </div>
+
+    <div class="card-body">
+        @if (!Model.Appointments.Any())
+        {
+            <partial name="_EmptyState" model="@("No appointments found.")" />
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Patient</th>
+                            <th>Doctor</th>
+                            <th>Clinic</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var appointment in Model.Appointments)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@appointment.PatientName</td>
+                                <td>@appointment.DoctorName</td>
+                                <td>@appointment.ClinicName</td>
+                                <td>@appointment.AppointmentDate.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    @appointment.StartTime.ToString("HH:mm") - @appointment.EndTime.ToString("HH:mm")
+                                </td>
+                                <td>
+                                    <partial name="_StatusBadge" model="@appointment.Status" />
+                                </td>
+                                <td>@appointment.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
