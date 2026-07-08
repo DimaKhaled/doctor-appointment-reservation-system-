@@ -6,6 +6,12 @@
 // Reusable confirmation modal handler.
 // Usage: add class "js-confirm-submit" and data-confirm-message="..." to a submit button inside a <form>.
 document.addEventListener("DOMContentLoaded", function () {
+    var loginToastEl = document.getElementById("loginToast");
+    if (loginToastEl) {
+        var loginToast = new bootstrap.Toast(loginToastEl);
+        loginToast.show();
+    }
+
     var confirmModalEl = document.getElementById("confirmModal");
     if (!confirmModalEl) {
         return;

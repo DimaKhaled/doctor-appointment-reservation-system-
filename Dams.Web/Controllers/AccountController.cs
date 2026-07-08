@@ -119,6 +119,7 @@ public class AccountController(DamsDbContext context, IPasswordService passwordS
         }
 
         await SignInAsync(user);
+        TempData["ToastSuccessMessage"] = $"Welcome back, {user.FullName}.";
 
         if (!string.IsNullOrWhiteSpace(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
         {
