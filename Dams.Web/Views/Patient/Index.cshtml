@@ -48,8 +48,8 @@
     <div class="d-flex flex-wrap gap-2">
         <a asp-action="Doctors" class="btn btn-primary">Find a Doctor</a>
         <a asp-action="UpcomingAppointments" class="btn btn-outline-primary">My Appointments</a>
-        <a asp-action="Profile" class="btn btn-outline-secondary">My Profile</a>
-        <a asp-action="AppointmentHistory" class="btn btn-outline-secondary">Appointment History</a>
+        @* <a asp-action="Profile" class="btn btn-outline-secondary">My Profile</a>
+        <a asp-action="AppointmentHistory" class="btn btn-outline-secondary">Appointment History</a> *@
     </div>
 </div>
 
@@ -85,7 +85,7 @@
                             <div class="text-muted small mb-3">
                                 @doctor.ClinicName, @doctor.City &middot; @doctor.ExperienceYears yrs experience
                             </div>
-                            <a asp-action="DoctorProfile" asp-route-id="@doctor.DoctorId" class="btn btn-outline-primary btn-sm">View Profile</a>
+                            <a asp-action="DoctorProfile" asp-route-id="@doctor.DoctorId" class="btn btn-primary btn-sm">View Profile</a>
                         </div>
                     </div>
                 </div>
